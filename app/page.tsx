@@ -1,113 +1,266 @@
-import Image from "next/image";
+"use client";
+
+import { Button, Form, Input } from "antd";
+import axios from "axios";
+import { useState } from "react";
 
 export default function Home() {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: any) => {
+    console.log("values", values);
+    console.log("window", window);
+    setLoading(true);
+    const { amount, email, phone } = values;
+
+    const data = await axios.post(`/api/donation`, values);
+    const order = data?.data;
+    console.log("order!!", order);
+
+    const key = "rzp_test_dYuz7VqNuZhuCz";
+    const options = {
+      key: key,
+      currency: "INR",
+      amount: order?.amount,
+      order_id: order?.id,
+      name: "testttt",
+      description: "Understanding RazorPay Integration",
+      modal: {
+        ondismiss: function () {
+          console.log("dismissed");
+          // setIsLoading(false);
+        },
+      },
+      handler: async function (response: any) {
+        console.log("handler!!!", response);
+        const data = await fetch("/api/paymentverify", {
+          method: "POST",
+          body: JSON.stringify({
+            ...values,
+            orderId: order.id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+          }),
+        });
+        setLoading(false);
+
+        // const res = await data.json();
+        console.log("verify data!!", data);
+      },
+      prefill: {
+        email,
+        contact: phone,
+      },
+    };
+    const myWindow: any = window;
+    const paymentObject = new myWindow.Razorpay(options);
+    paymentObject.open();
+
+    paymentObject.on("payment.failed", function (response: any) {
+      console.log("res", response);
+      alert("Payment failed. Please try again. Contact support for help");
+    });
+  };
+  const initialValues = {
+    amount: 100,
+    phone: 9306467463,
+    email: "avnish@gmail.com",
+    name: "avnish",
+    pan_num: "bmzpc9208l",
+    flat_door_building: "sample falt",
+    road_street_sector: "test road",
+    village_area_locality: "test village",
+    district_city: "test city",
+    state_ut: "test state",
+    pincode: "136135",
+    uidai: "test uidai",
+    voter_id_passport: "test id",
+    remarks: "test remarks",
+  };
+
+  const handleDonate = () => {
+    console.log("handleDonate");
+    form.submit();
+  };
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div style={{ padding: "20px", backgroundColor: "#F2F2F2" }}>
+      <Form
+        initialValues={initialValues}
+        form={form}
+        onFinish={onFinish}
+        layout="vertical"
+        style={{
+          borderRadius: "6px",
+          backgroundColor: "white",
+          padding: "12px",
+        }}
+      >
+        <Form.Item
+          name="amount"
+          label="Enter amount to pay"
+          rules={[
+            {
+              required: true,
+              message: "Amount is required!",
+            },
+          ]}
+        >
+          <Input type="number" />
+        </Form.Item>
+        <Form.Item
+          name="phone"
+          label="Customer Phone"
+          rules={[
+            {
+              required: true,
+              message: "Mobile Number is required!",
+            },
+          ]}
+        >
+          <Input type="tel" />
+        </Form.Item>
+        <Form.Item
+          name="email"
+          label="Customer Email"
+          rules={[
+            {
+              required: true,
+              message: "Email is required!",
+            },
+          ]}
+        >
+          <Input type="email" />
+        </Form.Item>
+        <Form.Item
+          name="name"
+          label="Name"
+          rules={[
+            {
+              required: true,
+              message: "Name is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="pan_num"
+          label="PAN No."
+          rules={[
+            {
+              required: true,
+              message: "PAN number is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="flat_door_building"
+          label="Flat/ Door/ Building"
+          rules={[
+            {
+              required: true,
+              message: "This is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="road_street_sector"
+          label="Road / Street / Block / Sector"
+          rules={[
+            {
+              required: true,
+              message: "This is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="village_area_locality"
+          label="Village / Area / Locality"
+          rules={[
+            {
+              required: true,
+              message: "This is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="district_city"
+          label="District / City"
+          rules={[
+            {
+              required: true,
+              message: "This is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="state_ut"
+          label="State /UT"
+          rules={[
+            {
+              required: true,
+              message: "This is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="pincode"
+          label="Pin Code"
+          rules={[
+            {
+              required: true,
+              message: "This is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="uidai"
+          label="Unique Identification Number issued by UIDAI"
+          rules={[
+            {
+              required: true,
+              message: "This is required!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="voter_id_passport"
+          label="Voter ID No. / Passport No. (optional)"
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item name="remarks" label="Remarks (optional)">
+          <Input />
+        </Form.Item>
+        <Form.Item>
+          <Button
+            loading={loading}
+            type="primary"
+            onClick={handleDonate}
+            style={{ width: "100%" }}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+            Donate now
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
   );
 }
