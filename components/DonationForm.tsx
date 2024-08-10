@@ -27,8 +27,6 @@ export default function DonationForm() {
       currency: "INR",
       amount: amount,
       order_id: orderId,
-      callback_url: "http://localhost:3000/payment-success",
-      // name: "testttt",
       description: "Understanding RazorPay Integration",
       modal: {
         ondismiss: function () {
@@ -73,20 +71,20 @@ export default function DonationForm() {
     // console.log("orderres", orderres);
   };
   const initialValues = {
-    amount: 100,
-    phone: 9306467463,
-    email: "avnish@gmail.com",
-    name: "avnish",
-    pan_num: "bmzpc9208l",
-    flat_door_building: "sample falt",
-    road_street_sector: "test road",
-    village_area_locality: "test village",
-    district_city: "test city",
-    state_ut: "test state",
-    pincode: "136135",
-    uidai: "test uidai",
-    voter_id_passport: "test id",
-    remarks: "test remarks",
+    // amount: 100,
+    // phone: 9306467463,
+    // email: "avnish@gmail.com",
+    // name: "avnish",
+    // pan_num: "bmzpc9208l",
+    // flat_door_building: "sample falt",
+    // road_street_sector: "test road",
+    // village_area_locality: "test village",
+    // district_city: "test city",
+    // state_ut: "test state",
+    // pincode: "136135",
+    // uidai: "test uidai",
+    // voter_id_passport: "test id",
+    // remarks: "test remarks",
   };
 
   const handleDonate = () => {
