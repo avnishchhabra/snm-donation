@@ -1,12 +1,7 @@
+import { instance } from "@/razorpay/instance";
 import { HttpStatusCode } from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import Razorpay from "razorpay";
 import shortid from "shortid";
-
-const instance = new Razorpay({
-  key_id: "rzp_test_dYuz7VqNuZhuCz",
-  key_secret: "DTPDl0NF93rrENshbPXkySgI",
-});
 
 export async function GET(req: NextRequest) {
   console.log("req", req);
@@ -22,8 +17,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  console.log("body", body);
-  const { amount: recAmount } = body;
+  const amount = body;
+  const recAmount = amount;
+  console.log("recAmount", recAmount);
 
   try {
     const payment_capture = 1;
@@ -38,12 +34,12 @@ export async function POST(req: NextRequest) {
     };
 
     const order = await instance.orders.create(options);
-    console.log("order!!", order);
-    return NextResponse.json(order, {
+    console.log("order created server!!", order);
+    return NextResponse.json(order.id, {
       status: HttpStatusCode.Ok,
     });
   } catch (err) {
-    console.log("error", err);
+    console.log("error creating order...", err);
     return NextResponse.json(
       {
         data: "something wrong....",
